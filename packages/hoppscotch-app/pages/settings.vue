@@ -229,20 +229,20 @@ const resetProxy = () => {
 }
 
 const getColorModeName = (colorMode: string) => {
-  return "settings.dark_mode"
-  // switch (colorMode) {
-  //   case "system":
-  //     return "settings.system_mode"
-  //   case "light":
-  //     return "settings.light_mode"
-  //   case "dark":
-  //     return "settings.dark_mode"
-  //   case "black":
-  //     return "settings.black_mode"
-  //   default:
-  //     return "settings.system_mode"
-  // }
+  switch (colorMode) {
+    case "system":
+      return "settings.system_mode"
+    case "light":
+      return "settings.light_mode"
+    case "dark":
+      return "settings.dark_mode"
+    case "black":
+      return "settings.black_mode"
+    default:
+      return "settings.system_mode"
+  }
 }
+
 </script>
 
 <script lang="ts">
