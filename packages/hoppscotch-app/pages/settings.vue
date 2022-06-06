@@ -3,15 +3,13 @@
     <div class="container space-y-8 divide-y divide-dividerLight">
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
-          <h3 class="heading">
-            {{ t("settings.theme") }}
-          </h3>
+          <h3 class="heading">ttheme</h3>
           <p class="my-1 text-secondaryLight">
             {{ t("settings.theme_description") }}
           </p>
         </div>
         <div class="p-8 space-y-8 md:col-span-2">
-          <section>
+          <section class="my-16">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.background") }}
             </h4>
@@ -70,11 +68,6 @@
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">
-                <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
-                  {{ t("settings.telemetry") }}
-                </SmartToggle>
-              </div>
-              <div class="flex items-center">
                 <SmartToggle
                   :on="EXPAND_NAVIGATION"
                   @change="toggleSetting('EXPAND_NAVIGATION')"
@@ -101,67 +94,7 @@
       </div>
 
       <div class="md:grid md:gap-4 md:grid-cols-3">
-        <div class="p-8 md:col-span-1">
-          <h3 class="heading">
-            {{ t("settings.interceptor") }}
-          </h3>
-          <p class="my-1 text-secondaryLight">
-            {{ t("settings.interceptor_description") }}
-          </p>
-        </div>
         <div class="p-8 space-y-8 md:col-span-2">
-          <section>
-            <h4 class="font-semibold text-secondaryDark">
-              {{ t("settings.extensions") }}
-            </h4>
-            <div class="my-1 text-secondaryLight">
-              <span v-if="extensionVersion != null">
-                {{
-                  `${t("settings.extension_version")}: v${
-                    extensionVersion.major
-                  }.${extensionVersion.minor}`
-                }}
-              </span>
-              <span v-else>
-                {{ t("settings.extension_version") }}:
-                {{ t("settings.extension_ver_not_reported") }}
-              </span>
-            </div>
-            <div class="flex flex-col py-4 space-y-2">
-              <span>
-                <SmartItem
-                  to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
-                  blank
-                  svg="brands/chrome"
-                  label="Chrome"
-                  :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
-                  :active-info-icon="hasChromeExtInstalled"
-                  outline
-                />
-              </span>
-              <span>
-                <SmartItem
-                  to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-                  blank
-                  svg="brands/firefox"
-                  label="Firefox"
-                  :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
-                  :active-info-icon="hasFirefoxExtInstalled"
-                  outline
-                />
-              </span>
-            </div>
-            <div class="py-4 space-y-4">
-              <div class="flex items-center">
-                <SmartToggle
-                  :on="EXTENSIONS_ENABLED"
-                  @change="toggleInterceptor('extension')"
-                >
-                  {{ t("settings.extensions_use_toggle") }}
-                </SmartToggle>
-              </div>
-            </div>
-          </section>
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.proxy") }}
@@ -237,18 +170,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineComponent } from "@nuxtjs/composition-api"
 import { applySetting, toggleSetting, useSetting } from "~/newstore/settings"
-import {
-  useToast,
-  useI18n,
-  useColorMode,
-  usePolled,
-} from "~/helpers/utils/composables"
-import {
-  hasExtensionInstalled,
-  hasChromeExtensionInstalled,
-  hasFirefoxExtensionInstalled,
-} from "~/helpers/strategies/ExtensionStrategy"
-import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
+import { useToast, useI18n, useColorMode } from "~/helpers/utils/composables"
 
 const t = useI18n()
 const toast = useToast()
@@ -258,35 +180,9 @@ const ACCENT_COLOR = useSetting("THEME_COLOR")
 const PROXY_ENABLED = useSetting("PROXY_ENABLED")
 const PROXY_URL = useSetting("PROXY_URL")
 const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")
-const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
-
-const extensionVersion = usePolled(5000, (stopPolling) => {
-  const result = hasExtensionInstalled()
-    ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
-    : null
-
-  // We don't need to poll anymore after we get value
-  if (result) stopPolling()
-
-  return result
-})
-
-const hasChromeExtInstalled = usePolled(5000, (stopPolling) => {
-  // If not Chrome, we don't need to worry about this value changing
-  if (!browserIsChrome()) stopPolling()
-
-  return hasChromeExtensionInstalled()
-})
-
-const hasFirefoxExtInstalled = usePolled(5000, (stopPolling) => {
-  // If not Chrome, we don't need to worry about this value changing
-  if (!browserIsFirefox()) stopPolling()
-
-  return hasFirefoxExtensionInstalled()
-})
 
 const clearIcon = ref("rotate-ccw")
 
@@ -325,11 +221,6 @@ const toggleInterceptor = (interceptor: "extension" | "proxy") => {
   }
 }
 
-const showConfirmModal = () => {
-  if (TELEMETRY_ENABLED.value) confirmRemove.value = true
-  else toggleSetting("TELEMETRY_ENABLED")
-}
-
 const resetProxy = () => {
   applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
   clearIcon.value = "check"
@@ -351,6 +242,7 @@ const getColorModeName = (colorMode: string) => {
       return "settings.system_mode"
   }
 }
+
 </script>
 
 <script lang="ts">
