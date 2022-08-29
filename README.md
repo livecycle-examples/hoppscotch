@@ -347,4 +347,4 @@ This project exists thanks to all the people who contribute — [contribute](CON
 ## **License**
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see the [`LICENSE`](LICENSE) file for details.
---
+---
